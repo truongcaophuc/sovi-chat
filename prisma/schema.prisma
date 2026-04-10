@@ -12,6 +12,8 @@ model User {
   username     String    @unique
   displayName  String
   passwordHash String
+  email        String?   @unique
+  phone        String?   @unique
   createdAt    DateTime  @default(now())
 
   // Auto-reply via Parlant: when enabled, the server forwards incoming messages

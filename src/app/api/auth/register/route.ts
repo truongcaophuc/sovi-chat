@@ -5,7 +5,11 @@ import { signToken, AUTH_COOKIE } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, displayName, password } = await req.json();
+    const body = await req.json();
+    const { username, displayName, password } = body;
+    const email = body.email?.trim().toLowerCase() || null;
+    const phone = body.phone?.trim() || null;
+
     if (!username || !password || !displayName) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
@@ -17,11 +21,19 @@ export async function POST(req: NextRequest) {
     if (existing) {
       return NextResponse.json({ error: "Username taken" }, { status: 409 });
     }
+    if (email) {
+      const dup = await prisma.user.findUnique({ where: { email } });
+      if (dup) return NextResponse.json({ error: "Email already in use" }, { status: 409 });
+    }
+    if (phone) {
+      const dup = await prisma.user.findUnique({ where: { phone } });
+      if (dup) return NextResponse.json({ error: "Phone already in use" }, { status: 409 });
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { username, displayName, passwordHash },
-      select: { id: true, username: true, displayName: true },
+      data: { username, displayName, passwordHash, email, phone },
+      select: { id: true, username: true, displayName: true, email: true, phone: true },
     });
 
     const token = signToken({ userId: user.id, username: user.username });

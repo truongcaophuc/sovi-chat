@@ -9,6 +9,8 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +21,7 @@ export default function RegisterPage() {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, displayName, password }),
+      body: JSON.stringify({ username, displayName, password, email, phone }),
     });
     setLoading(false);
     if (!res.ok) {
@@ -53,6 +55,28 @@ export default function RegisterPage() {
             onChange={(e) => setUsername(e.target.value)}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zalo-blue"
             required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Email <span className="text-gray-400 font-normal">(không bắt buộc)</span>
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zalo-blue"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Số điện thoại <span className="text-gray-400 font-normal">(không bắt buộc)</span>
+          </label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zalo-blue"
           />
         </div>
         <div>

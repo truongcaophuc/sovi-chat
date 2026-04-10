@@ -1,0 +1,55 @@
+services:
+  sovi-chat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sovi-chat:latest
+    container_name: sovi-chat
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Override individual values here, or use env_file below to load .env wholesale.
+      NODE_ENV: production
+      PORT: 3000
+      # If RUN_DB_PUSH=0, skip auto schema sync on startup
+      RUN_DB_PUSH: "1"
+    env_file:
+      - .env
+    # Uncomment if your Postgres is on the host network (not in this compose):
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/login >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+# ----------------------------------------------------------------------------
+# Optional: bundle your own Postgres alongside the app.
+# To use it, uncomment below AND change DATABASE_URL in .env to:
+#   postgresql://postgres:abc123456@postgres:5432/chat_app?schema=public
+# Then add `depends_on: [postgres]` to the sovi-chat service.
+# ----------------------------------------------------------------------------
+#
+#  postgres:
+#    image: postgres:17-alpine
+#    container_name: sovi-chat-postgres
+#    restart: unless-stopped
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: abc123456
+#      POSTGRES_DB: chat_app
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - sovi-chat-pgdata:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U postgres -d chat_app"]
+#      interval: 10s
+#      timeout: 3s
+#      retries: 5
+#
+# volumes:
+#   sovi-chat-pgdata:
